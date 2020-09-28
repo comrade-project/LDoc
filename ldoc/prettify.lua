@@ -22,7 +22,7 @@ local function escape(str)
 end
 
 local function span(t,val)
-   return ('<span class="%s">%s</span>'):format(t,val)
+   return ('<span class="hljs-%s">%s</span>'):format(t,val)
 end
 
 local spans = {keyword=true,number=true,string=true,comment=true,global=true,backtick=true}
@@ -40,7 +40,7 @@ function prettify.lua (lang, fname, code, initial_lineno, pre, linenos)
    end
 
    if pre then
-      res:append '<pre>\n'
+      res:append('<pre>\n<code class="hljs ' .. lang .. '">\n')
    end
    initial_lineno = initial_lineno or 0
 
@@ -83,7 +83,7 @@ function prettify.lua (lang, fname, code, initial_lineno, pre, linenos)
       res[#res] = last:gsub('\n+','')
    end
    if pre then
-      res:append '</pre>\n'
+      res:append '</code>\n</pre>\n'
    end
    return res:join ()
 end

@@ -2,6 +2,24 @@
 
 Copyright (C) 2011-2012 Steve Donovan.
 
+## Changes made
+
+* Switched template engine to etlua
+* Made new html renderer (docs/html.tpl)
+* Made new markdown renderer (docs/ldoc.tpl)
+* html/ldoc_ltp and html/ldoc_md_ltp will not work as they use ptl
+* Prettify produces highlight js tags
+  
+This fork of ldoc is mainly used for [Comrade](https://github.com/comrade-project/Comrade/) to make its documentation
+
+In order to use html, you also have to edit ldoc/html and set ext to `html`. Why? Since it requires effort to allow for switching in config.
+
+To use run
+
+```sh
+[sudo] luarocks make
+```
+
 ## Rationale
 
 This project grew out of the documentation needs of

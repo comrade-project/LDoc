@@ -712,7 +712,7 @@ override ('ext','html')
 override 'one'
 
 -- handling styling and templates --
-ldoc.css, ldoc.templ = 'ldoc.css','ldoc.ltp'
+ldoc.css, ldoc.templ = 'ldoc.css','ldoc.tpl'
 
 -- special case: user wants to generate a .md file from a .lua file
 if args.ext == 'md' then

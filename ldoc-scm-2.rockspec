@@ -20,7 +20,8 @@ description = {
 }
 
 dependencies = {
-  "penlight","markdown"
+  "penlight","markdown",
+  "etlua"
 }
 
 build = {

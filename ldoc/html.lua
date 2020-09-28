@@ -17,13 +17,16 @@ local List = require 'pl.List'
 local utils = require 'pl.utils'
 local path = require 'pl.path'
 local stringx = require 'pl.stringx'
-local template = require 'pl.template'
 local tablex = require 'pl.tablex'
 local OrderedMap = require 'pl.OrderedMap'
 local tools = require 'ldoc.tools'
 local markup = require 'ldoc.markup'
 local prettify = require 'ldoc.prettify'
 local doc = require 'ldoc.doc'
+
+local etlua = require 'etlua'
+local ext = 'md'
+
 local unpack = utils.unpack
 local html = {}
 
@@ -52,6 +55,10 @@ local function get_module_info(m)
    if #info:keys() > 0 then
       return info
    end
+end
+
+local function detect_markdown(str)
+   return str:find('# ')
 end
 
 local escape_table = { ["'"] = "&apos;", ["\""] = "&quot;", ["<"] = "&lt;", [">"] = "&gt;", ["&"] = "&amp;" }
@@ -150,9 +157,10 @@ function html.generate_output(ldoc, args, project)
             end
          end
       end
-      return base..name..'.html'
+
+      return base..name..'.' .. ext
    end
-   
+
    function ldoc.include_file (file)
       local text,e = utils.readfile(file)
       if not text then quit("unable to include "..file)
@@ -168,7 +176,7 @@ function ldoc.source_ref (fun)
       if not pack then
          name = modname
       end
-      return (ldoc.single and "" or "../").."source/"..name..'.lua.html#'..fun.lineno
+      return (ldoc.single and "" or "../").."source/"..name..'.lua.' .. ext .. '#'..fun.lineno
    end
 
    function ldoc.use_li(ls)
@@ -274,22 +282,35 @@ function ldoc.source_ref (fun)
    end
 
    local module_template,err = utils.readfile (path.join(args.template,ldoc.templ))
+
    if not module_template then
-      quit("template not found at '"..args.template.."' Use -l to specify directory containing ldoc.ltp")
+      quit("template not found at '"..args.template.."' Use -l to specify directory containing ldoc.tpl")
    end
 
    -- Runs a template on a module to generate HTML page.
    local function templatize(template_str, ldoc, module)
-      local out, err = template.substitute(template_str, {
+
+      local out, err = etlua.render(template_str, {
          ldoc = ldoc,
-         module = module,
+         module = module or false,
          _escape = ldoc.template_escape
       })
+      --[[
+         {
+            ldoc = ldoc,
+            module = module,
+            _escape = ldoc.template_escape
+         }
+      ]]
+
+      print(err or '')
+
       if not out then
          quit(("template failed for %s: %s"):format(
                module and module.name or ldoc.output or "index",
-               err))
+               err or ''))
       end
+
       if ldoc.postprocess_html then
          out = ldoc.postprocess_html(out, module)
       end
@@ -335,7 +356,7 @@ function ldoc.source_ref (fun)
 
    -- write out the module index
    out = cleanup_whitespaces(out)
-   writefile(args.dir..args.output..args.ext,out)
+   writefile(args.dir..args.output.. ('.' .. ext) or args.ext,out)
 
    -- in single mode, we exclude any modules since the module has been done;
    -- ext step is then only for putting out any examples or topics
@@ -369,11 +390,12 @@ function ldoc.source_ref (fun)
          end
          set_charset(ldoc)
          m.info = get_module_info(m)
-         if ldoc.body and m.postprocess then
+         if ldoc.body and not detect_markdown(ldoc.body) and m.postprocess then
             ldoc.body = m.postprocess(ldoc.body)
          end
          local out = templatize(module_template, ldoc, m)
-         writefile(args.dir..lkind..'/'..m.name..args.ext,out)
+
+         writefile(args.dir..lkind..'/'..m.name.. (m.name:sub(#m.name - 2, #m.name) == '.md' and '' or '.' .. ext) or args.ext,out)
          restore_ldoc()
       end
    end
