@@ -42,7 +42,7 @@ elseif module then
 <% if not ldoc.no_summary then %>
 <% for kind, items in module.kinds() do %>
 ### [<%- no_spaces(kind) %>](#<%- kind %>)
-| Property | Descritpion |
+| Property | Description |
 | -------- | ----------- |<% for item in items() do %>
 | <%- display_name(item) %> | <%= M(item.summary, item):gsub('\n', ' ') %> |<% end %>
 <% end %>
