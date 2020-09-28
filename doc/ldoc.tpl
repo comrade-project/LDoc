@@ -80,7 +80,7 @@ elseif module then
       local name, tp, def = item:display_name_of(p), 
       ldoc.typename(item:type_of_param(p)), 
       item:default_of_param(p)
-%>| <%- name %> | <%- tp %> | <%- def and '☑️' or '❌'%> | <%- (def == true and '`none`') or (def and '`' .. def .. '`') or '`none`' %> | <%- M(item.params.map[p], item) %> |<% end %>
+%>| <%- name %> | <%- tp %> | <%- def and '☑️' or '❌'%> | <%- (def == true and '`none`') or (def and '`' .. def .. '`') or '`none`' %> | <%- M(item.params.map[p], item):gsub('\n', '  ') %> |<% end %>
 <% end %>
 
 <% end %>
